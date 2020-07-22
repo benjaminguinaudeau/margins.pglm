@@ -1,0 +1,69 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# margins.pglm
+
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
+The goal of `margins.pglm` is to replicate the function of [{ margins }](https://github.com/leeper/margins), with models fitted with [{ pglm }](https://cran.r-project.org/web/packages/pglm/index.html). 
+
+
+## Installation
+
+``` r
+devtools::install_github("benjaminguinaudeau/margins.pglm")
+```
+
+## Short Example
+
+```{r}
+library(pglm)
+library(margins.pglm)
+```
+
+
+```{r}
+
+formula <- union ~ exper + wage*rural
+
+anb <- pglm(formula, union_wage, family = binomial('probit'), 
+            model = "pooling", method = "bfgs", print.level = 3, R = 5)
+
+```
+
+```{r}
+summary(margins::margins(model = anb, formula = formula))
+
+```
+
+```{r}
+m <- margins::margins(model = anb, at = list("wage" = c(-3:4)), variables = "rural", formula = formula)
+m
+```
+
+```{r}
+summary(m)
+```
+
+```{r}
+library(ggplot2)
+ggplot(aes(x = wage, y = AME, ymin = lower, ymax = upper), data = summary(m)) +
+  geom_point() +
+  geom_linerange() +
+  labs(y = "Average Marginal Effect of \nrural") +
+  theme_bw()
+
+```
+

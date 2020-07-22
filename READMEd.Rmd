@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(pglm)
+library(margins)
+library(margins.pglm)
+
+data('UnionWage', package = 'pglm')
+formula <- union ~ exper + wage*rural
+anb <- pglm(formula, UnionWage, family = binomial('probit'), 
+            model = "pooling", method = "bfgs", print.level = 3, R = 5)
+
+```
+
+```{r}
+summary(margins(model = anb, formula = formula))
+
+```
+
+```{r}
+m <- margins(model = anb, at = list("wage" = c(-3:4)), variables = "rural", formula = formula)
+m
+```
+
+```{r}
+summary(m)
+```
+
+```{r}
+library(ggplot2)
+ggplot(aes(x = wage, y = AME, ymin = lower, ymax = upper), data = summary(m)) +
+  geom_point() +
+  geom_linerange() +
+  labs(y = "Average Marginal Effect of \nrural") +
+  theme_bw()
+
+```
+
